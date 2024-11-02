@@ -1,4 +1,4 @@
-1. Quelle structure (tableau, liste chaînée, pile, file) semble la plus appropriée pour ce type d’exercice ?
+1. Quelle structure (tableau, liste chaînée, pile, file) semble la plus appropriée pour ce type d’exercice ? une File
 2. Déclarer ce type de structure avec comme type d’élément un entier.
 3. Créer une fonction qui va créer une instance d’un client avec une valeur entière aléatoire entre 1 et 50 (simulant le
 nombre d’articles dans son caddy).
@@ -19,166 +19,192 @@ somme des articles des autres clients situés devant dépasse un certain seuil
 — Est ce que la structure choisie est appropriée pour ce type de calcul ? Justifier la réponse.
 
 
-Correction Romuald Grignon
+Correction 
 
-#include <stdio.h>
-#include <stdlib.h>
 
-typedef struct _node{
-    char          c;
-    struct _node* pNext;
-} Node;
+#include<stdio.h>
+#include<stdlib.h>
 
-Node* createNode(char c){
-    Node *pNew = malloc(sizeof(Node));
-    if(pNew == NULL){
-        exit(1);
-    } 
-    pNew->c     = c;
-    pNew->pNext = NULL;
-    return pNew;
+ typedef struct chainon {
+    int valeur;
+    strcut chainon *suivant;
+ }Chainon;
+//creation du chainon, element de la file
+Chainon *createChainon(int a){
+  Chainon *new = malloc(sizeof(Chainon));
+  if(new == NULL){
+    exit(1);
+  }
+  new->valeur = a;
+  new->suivant =NULL;
+  return new;
 }
-
-Node* addStart(Node* pHead, char c){
-    Node* pNew = createNode(c);
-    if(pNew == NULL){
+//ajouter chainon au debut
+Chainon addDebut(Chainon *tete, int val){
+  if(tete==NULL){
+    tete =createChainon(val);
+  }
+  else{
+    Chainon *nouveau = createChainon(val);
+      if(nouveau == NULL){
         exit(2);
-    } 
-    pNew->pNext = pHead;
-    pHead = pNew;
-    return pHead;    
+      }
+    nouveau->suivant =tete;
+    tete = nouveau; 
+  }
+  return tete;
 }
 
-Node* addEnd(Node* pHead, char c){
-    if(pHead == NULL){
-        pHead = addStart(pHead, c);
+Chainon *addFin(Chainon *tete, int val){
+  if(tete == NULL){
+    tete = createChainon(val);
+  }
+  else{
+    Chainon *nouveau = createChainon(val);
+      if(nouveau == NULL){
+        exit(2);
+      }
+    Chainon *tmp =tete;
+    while(tmp->suivant != NULL){
+      tmp = tmp->suivant;
     }
-    else{
-        Node* p1 = pHead;
-        while(p1->pNext != NULL){
-            p1 = p1->pNext;
+    tmp->suivant = nouveau;
+  }
+  return tete;
+}
+
+void afficherListe(Chainon *liste){
+  if(liste ==NULL){
+    printf("la liste est vide");
+  }
+  else{
+    while(liste != NULL){
+      printf("%d", liste->valeur);
+        if(liste->suivant != NULL){
+          printf("->");
         }
-        Node* pNew = createNode(c);    
-        if(pNew == NULL){
-            exit(50);
-        }
-        p1->pNext = pNew;
+      liste = liste->suivant;
     }
-    return pHead;
+  printf("\n");
+  }
 }
 
-Node* removeStart(Node* pHead, char* pC){
-    if(pHead == NULL){
-        exit(3);
-    }
-    Node* pRemove = pHead;
-    pHead = pHead->pNext;    
-    *pC = pRemove->c;    
-    pRemove->pNext = NULL;
-    free(pRemove);
-    return pHead;
+Chainon supprimerDebut(Chainon *tete, int *val){
+  if(tete == NULL){
+    exite(3);
+  }
+  else{
+    Chainon *tmp = tete; //stock l'element a supprimer et ne pas le perdre
+    tete = tete->suivant; //on passe au suivant on met a jour la tete au deuxieme element
+    *val=tmp-valeur; //on recupere la valeur de l'element a supprimer
+    tmp->suivant = NULL; //on supprime le lien avec le suivant
+    free(tmp); //on libere l'espace memoire
+    return tete;
+  }
 }
 
-void displayList(Node* p){
-    printf("Values : ");
-    while(p != NULL){
-        printf("[%02d]", p->c);
-        p = p->pNext;
-    }
-    printf("\n");
+typedef struct File {
+    Chainon *tete; //pointeur au sommet de la file
+    Chainon *fin; //pointeur en fin de file
+}File;
+//fonction pour creer une nouvelle file
+File *createFile(){
+  File newFile = malloc(sizeof(File));
+  if(newFile == NULL){
+    exit(11);
+  }//initialisation de la file NULL NULL 0
+  newFile->tete = NULL;
+  newFile->queue = NULL;
+  newFile->nb = 0; 
+  return newFile;
 }
 
-typedef struct{
-    Node* pHead;
-    Node* pTail;
-    int   size;    
-} Queue;
+//push : ajouter un element dans un file enfiler
+//pop : enlever un element de la file defiler
 
-Queue* createQueue(){
-    Queue* qu = malloc(sizeof(Queue));
-    if(qu == NULL){
-        exit(10);
-    }
-    qu->size  = 0;
-    qu->pHead = NULL;
-    qu->pTail = NULL;
-    return qu;
+void enfiler(File *file, int val){
+  if(file==NULL){
+    exit(12);// On vérifie si la file existe, sinon on quitte avec une erreur
+  }
+  if(file->fin == NULL){
+    file->fin = createChainon(val);
+    file->tete=file->fin;//tete` et `fin` pointent sur ce premier élément
+  }
+  else{
+    file->fin->next = createChainon(val); // On crée un nouveau chaînon et le place après `fin`
+    file->fin = file->fin->next;
+  }
 }
 
-void push(Queue* qu, char c){
-    if(qu == NULL){
-        exit(11);
-    }
-    qu->pTail = addEnd(qu->pTail, c);
-    if(qu->pHead == NULL){
-        // very first insertion
-        qu->pHead = qu->pTail;
-    }
-    else{
-        // any other ones
-        qu->pTail = qu->pTail->pNext;
-    }
-    qu->size++;
+int defiler(File *file, int *val){
+  if (file==NULL){
+    exit(14); //si la file n'existe pas on quitte avec une erreur
+  }
+  if(file->tete == NULL){
+    return -1; //la file est vide on quitte avec une erreur
+  }
+  Chainon *tmp = file->tete->suivant;//sauvegarde de l'element numero 2
+  *nb = file->tete->valeur; //stock la valeur de l'element a supprimer
+  free(file->tete); //on libere l'espace memoire
+  file->tete=tmp;//on met a jour la tete  
+  return 0; //succes
+}
+//quand on retourne des valeur -1 echec et 0 succes on met int en type de fonction, sinon void fera l'affaire /
+
+void afficherFile(File *file){
+  if(file == NULL){
+    printf("la file n'existe pas.\n");
+  }
+  if(file->tete || file->fin ==NULL){
+    printf("la file est vide.\n");
+  }
+  else{
+    afficherListe(file->tete);
+  }
 }
 
-void pop(Queue* qu, char* pC){
-    if(qu == NULL || pC == NULL || qu->size <= 0){
-        exit(12);
-    }
-    qu->pHead = removeStart(qu->pHead, pC); 
-    if(qu->pHead == NULL){
-        // very last remove
-        qu->pTail = NULL;
-    }
-    qu->size--;    
-}
-
+/*grignon's version 
 void displayQueue(Queue* qu){
     if(qu == NULL){
         exit(13);
     }
     printf("Queue size = %d\n", qu->size);
     displayList(qu->pHead);
+}*/
+int createClient(){
+    return randint(1,50); // Un client a entre 1 et 50 articles
 }
-
-int getSize(Queue* qu){
-    if(qu == NULL){
-        exit(14);
-    }
-    return qu->size;
-}
-
-
 
 int main(){
+  srand(time(NULL));
+  File *file = createFile();
 
-    Queue* cash1 = createQueue();
+  //ajouter 3 client initiaux dans la file
 
-    srand(0);
+  for(int i=0; i<3; i++){
+    enfiler(&file,createClient());
+  }
+  int client_paye; // Variable pour stocker le client qui paye
+  int ret_var // Variable pour stocker le retour de defiler
+  afficheFile(&file);
 
-    for(int i=0;i<3;i++){
-        push(cash1, rand()%50 + 1);
-    }    
-
-//    displayQueue(cash1);    
-
-
-    while( getSize(cash1) > 0 ){
-        char customer = 0;
-        // Pop oldest customer
-        pop(cash1, &customer);
-        printf("Customer with %d articles has left the supermarket !\n", customer);
-//        displayQueue(cash1);    
-        // check if new customers
-        if(rand()%101 <= 50){
-            int n = rand()%3 + 1;
-            // random (1-3) new customers
-            for(int i=0;i<n;i++){
-                push(cash1, rand()%50 + 1);
-            }
-        } 
-        displayQueue(cash1);    
-    }
+  while(file->tete !=NULL && file->fin !=NULL){
+        ret_var = defiler(&file, &client_paye);
+        if(ret_var){
+          return 1;//sors en cas d'erreur
+        }
+    
+        if(randint(1,3)==1){
+          for(int i=0; i<randint(1,3); i++){
+            enfiler(&file, createClient());
+          }
+        }
+      //afficher le client qui passe en caisse
+      printf("%d passe en caisse\n", client_paye);
+      afficheFile(&file);
+  }
+  return 0;
+}
 
 
 
