@@ -18,23 +18,197 @@ Exemple :
 "a(b[c()e]f)g" est bien parenthésé.
 "a(b[c)d]e" ne l’est pas.
 
-  Correction Romuale Grignon MI2
+  Correction 1 : Kahina 
+
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct chainon{
+  char valeur;
+  struct chainon *suivant;
+}Chainon;
+
+typedef struct pile{
+  chainon *tete;
+  int taille;
+}Pile;
+
+Chainon *createChainon(char c){
+  Chainon *new = malloc(sizeof(Chainon));
+  if(new==NULL){
+    printf("error malloc");
+    exit(1);
+  }
+  new->mot = c;
+  new->valeur = NULL;
+  return new;
+}
+
+Chainon *insertDebut(Chainon *tete, char c){
+  if(tete==NULL){
+    tete=createChainon(c);
+  }
+  else{
+    Chainon *new = createChainon(c);
+    if(new==NULL){
+      printf("error malloc");
+      exit(2);
+    }
+    new->suivant =tete;
+    tete=new;
+  }
+  retrun tete;
+}
+
+Chainon *insertFin(Chainon *tete, char c){
+  if(tete==NULL){
+    tete=createChainon(c);
+  }
+  else{
+    Chainon *new = createChainon(c);
+    if(new==NULL){
+      printf("error malloc");
+      exit(3);
+    }
+    Chainon *tmp = tete;
+    while(tmp->suivant!=NULL){
+      tmp=tmp->suivant;
+    }
+    tmp->suivant=new;
+  }
+  return tete;
+}
+
+Chainon afficherListe (Chainon *liste){
+  if(liste==NULL){
+    printf("la liste est vide.\n");
+  }
+  else{
+    while(liste!=NULL){
+      printf("%c", liste->valeur);
+      if(liste->suivant!=NULL){
+        printf("->");
+      }
+      liste = liste->suivant;
+    }
+    printf("\n");
+  }
+}
+
+Pile createPile(){
+  Pile *pile = malloc(sizeof(Pile));
+  if(pile==NULL){
+    printf("error malloc");
+    exit(4);
+  }
+  pile->tete=NULL; //initialisation de la tete de pile
+  return pile;
+}
+
+void empiler(Pile *pile, char c){
+  Pile*new=createPile(c);
+  if(pile==NULL){
+    exit(5);
+  }
+  pile->tete = insertDebut(pile->tete, c);
+  return pile;
+}
+
+Pile *depiler(Pile *pile, int *val){//a retenir a chaque suppression ou free on est obliger de declarer ou de mettre la valeur en pointeur dans le parametre, ca permet de stocker la valeur qui est supprimee en memeoire et ne pas la perdre OK!!
+      if(pile == NULL){
+        exit(18);// la pile n'existe pasdonc on ne peut pas depiler
+      }
+      if(pile->tete == NULL){//la pile est vide donc on ne peut pas depiler
+        exit(19);
+      }
+
+    Chainon *tmp = pile->tete->suivant;//sauvegarder le deuxieme element*val
+    *val = pile->tete->valeur;//recuperer la valeur du premier element
+    free(pile->tete);//supprimer le premier element
+    pile->tete =tmp; //mettre a jour le nouveau premier element 2
+    return pile;
+}
+
+void afficherPile(Pile *pile){
+  affiherListe(pile->tete);// Affiche les éléments de la pile en utilisant afficheListe
+}
+
+char inverserParenthesage(char a){
+  switch(a){
+    case '(':
+      return ')';
+    case ')':
+      return '(';
+    case'[':
+      return ']';
+
+    default: 
+      return 0; //retourner 0 si aucun ne match
+  }
+}
+
+int parenthesage(char *nb){
+  if(nb == NULL){
+    exit(12);
+  }
+
+  Pile*pile=createPile(); //creer une pile pour stocker les char ouvrants
+  int taille = strlen(nb);//taille de la chaine
+  char depile;
+
+  //on parcours chaque caractere de la chaine
+  for(int i=0; i<taille; i++){
+    switch(str[i]){
+      //si on rencontre une parenthese, un crochet ou une accolade ouvrante
+      case '(':
+      case '[':
+      case '{':
+        empiler(pile, str[i]);//on empile l'element
+      break;
+
+      // Si on rencontre une parenthèse, un crochet ou une accolade fermante
+      case ')':
+      case ']':
+      case '}':
+        depiler(ppile, &depile_var);// Dépile un caractère ouvrant
+      if (str[i] != inverse_parenthesage(depile_var)) {   
+        printf("%s faux \n", str); // Si le caractère fermant ne correspond pas, affiche "faux"
+        return 0; // Retourne 0 pour indiquer que la chaîne est mal parenthésée
+      }
+      break;
+      // Ignore les autres caractères
+      default:
+          break;
+    }
+  }
+  
+}
+
+int main() {
+    // Test des chaînes avec différentes combinaisons de parenthèses, crochets et accolades
+    char c1[] = "Je suis Luffy )le futur roi des pirates( !";
+    parenthesage(c1);
+
+    char c2[] = "a(b[c()e]f)g";
+    parenthesage(c2);
+
+    char c3[] = "a(b[c)d]e";
+    parenthesage(c3);
+
+    char c4[] = "dfg.dfgg.gfggg( cy.deltahmed.fr/egg/hehe.gif )sd.gwdf.gdd";
+    parenthesage(c4);
+
+    char c5[] = "x(1+2)([2+5]*3)";
+    parenthesage(c5);
+
+    return 0; // Fin du programme
+}
 
 
-4 sur 2 502
-Document de Kahinaaaaaa
-Boîte de réception
 
-kahina Hammad <hammadkahina5@gmail.com>
-Pièces jointes
-mer. 30 oct. 09:47 (il y a 2 jours)
-À moi
 
- 1 pièce jointe
-  • Analyse effectuée par Gmail
-margot.rouille@cyje.fr. Appuyez sur Tabulation pour insérer.
-#include <stdio.h>
-#include <stdlib.h>
+  Correction 2 : Romuald Grignon MI2
+
 
 typedef struct _node{
     char          c;
