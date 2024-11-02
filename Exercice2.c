@@ -16,60 +16,33 @@ A quoi vont ressembler ces deux piles ? Vérifier grâce à affichePile(PileDyn 
 
 Correction:
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-typedef struct chainon {
-    int valeur;
-    struct chainon *suivant;
+typedef struct chainon{
+  int valeur;
+  struct chainon *suivant;
 }Chainon;
 
 typedef struct pile{
-    Chainon *tete; //pointeur vers le sommet de la pile;
-    int nombre;
+  Chainon *tete;
 }Pile;
 
-Chainon *createChainon(int v){
-    Chainon *new = malloc(sizeof(Chainon));
-    if(new==NULL){
-        exit(1);
-    }
-    new->valeur =v;
-    new->suivant=NULL;
-    return new;
+Chainon*createChainon(int a){
+  Chainon *p1=malloc(sizeof(Chainon));
+  if(p1==NULL){
+    exit(1);
+  }
+  p1->valeur=a;
+  p1->suivant=NULL;
+  return p1;
 }
 
 Chainon *ajoutDebut(Chainon *tete, int val){
-    if(tete == NULL){
-        tete=createChainon(val);
-    }else{
-        Chainon *new = createChainon(val);
-            if(new==NULL){
-                exit(2);
-            }
-        new->suivant=tete;
-        tete=new;//mise a jour de la tete
-    }
-        return tete;
-}
-
-Chainon *ajoutFin(Chainon *tete, int val){
-    if (tete == NULL){
-        tete= createChainon(val);
-    }
-    else{
-        Chainon*new=createChainon(val);
-            if(new==NULL){
-                exit(3);
-            }
-        Chainon *tmp=tete;
-        while(tmp->suivant != NULL){
-                tmp=tmp->suivant;
-            }
-            tmp->suivant = new;
-        }
-        return tete;
+  Chainon *new=createChainon(val);
+  if(new==NULL){
+    exit(1);
+  }
+  new->suivant=tete;
+  tete=new;
+  return tete;
 }
 
 void afficherListe(Chainon *liste){
@@ -84,47 +57,79 @@ void afficherListe(Chainon *liste){
     printf("\n");
 }
 
+//fonction pour creer une nouvelle pile et l'initialiser
+
 Pile *createPile(){
-    Pile *new =malloc(sizeof(Pile));//alloue de la memoire pour une nouvelle pile
-    if(new==NULL){
-        exit(5);
-    }
-    new->tete=NULL; //initialise la pile comme vide
-    return new;//retourner la nouvelle pile
+  Pile *pile = malloc(sizeof(Pile));
+  if(pile == NULL){
+    exit(1);
+  }
+  pile->tete=NULL; //la pile est nulle donc le sommet est vide
+  return pile;
 }
 
-//fonction pour empiler
-Pile *empiler(Pile *ppile, int nb){
-    if(ppile==NULL){
-        exit(1);
-    }
-    ppile->tete = ajoutDebut(ppile->tete, nb);//inserer l'element au sommet de la pile
-    return ppile;
+//fonction pour empiler un entier dans la pile
+
+void empiler(Pile *pile, int val){
+  Pile *new =createPile();
+  if(new == NULL){
+    exit(23);
+  }
+  pile->tete=ajouterDebut(pile->tete,val);
+  return pile;
 }
 
-//fonction pour afficher la pile
-void afficherPile(Pile *ppile){
-    afficherListe(ppile->tete);
+void afficherPile(Pile *pile){
+  affiherListe(pile->tete);// Affiche les éléments de la pile en utilisant afficheListe
+}
+//autre maniere recurssive
+
+void afficherPileRec(Chainon *pile){
+  if(pile != NULL){
+    printf("%d\n", pile->valeur);
+    affichePileRec(pile->suivant);
+  }
 }
 
-void affichePileRec(Chainon *actual){
-    if(actual != NULL){
-        printf("%d\n", actual->valeur);
-        affichePileRec(actual->suivant);
-    }
+//On crée la fonction qui permet de dépiler une valeur sur la pile
+
+Pile *depiler(Pile *pile, int *val){//a retenir a chaque suppression ou free on est obliger de declarer ou de mettre la valeur en pointeur dans le parametre, ca permet de stocker la valeur qui est supprimee en memeoire et ne pas la perdre OK!!
+      if(pile == NULL){
+        exit(18);// la pile n'existe pasdonc on ne peut pas depiler
+      }
+      if(pile->tete == NULL){//la pile est vide donc on ne peut pas depiler
+        exit(19);
+      }
+
+    Chainon *tmp = pile->tete->suivant;//sauvegarder le deuxieme element*val
+    *val = pile->tete->valeur;//recuperer la valeur du premier element
+    free(pile->tete);//supprimer le premier element
+    pile->tete =tmp; //mettre a jour le nouveau premier element 2
+    return pile;
 }
 
-Pile *depiler(Pile *ppile, int *pnmb){
-    if(ppile == NULL){
-        exit(6);
+int main(){
+  Pile *p1 =createPile();
+  for(int i=0; i<20; i++){
+    P1= empiler(P1, i);
+  }
+  affichePile(p1);
+
+  Pile *pilePair = createPile();
+  Pile *pileImpair = createPile();
+
+  int nb;
+  while(p1!=NULL){
+    p1=depiler(p1,&nb);
+      if(nb%2==0){
+        pilePair = empiler(pilePair, nb);
+      }
+      else{
+        pileImpair = empiler(pileImpair, nb);
     }
-    if(ppile->tete ==NULL){
-        return ppile;
-    }
-    Chainon *tmp = ppile->tete->suivant;//sauvegarde du deuxieme element
-    *pnmb = ppile->tete->valeur; //stock la valeur de l'element a depiler
-    free(ppile->tete);
-    ppile->tete = tmp;//met a jour le sommet de la pile
-    return ppile;
+  }
+  afficherPile(pilePair);
+  afficherPile(pileImpaire);
+
+  return 0;
 }
-a suivre...
